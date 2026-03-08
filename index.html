@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
-<title>RAG Learning Simulator</title>
+<title>RAG Simulator</title>
 
 <style>
 
@@ -16,46 +15,33 @@ margin:0;
 
 header{
 background:#1e293b;
-padding:20px;
+padding:18px;
 text-align:center;
-font-size:26px;
+font-size:24px;
 font-weight:bold;
-letter-spacing:1px;
 }
 
-.sub{
-text-align:center;
-color:#94a3b8;
-margin-bottom:20px;
-}
-
-.wrapper{
+.container{
 display:grid;
-grid-template-columns:320px 1fr;
+grid-template-columns:340px 1fr;
 gap:20px;
 padding:20px;
 }
 
 .card{
 background:#1e293b;
-border-radius:10px;
 padding:18px;
+border-radius:10px;
 margin-bottom:15px;
-}
-
-.card h3{
-margin-top:0;
-font-size:18px;
 }
 
 textarea,input{
 width:100%;
 padding:10px;
-border:none;
 border-radius:8px;
+border:none;
 margin-top:8px;
 margin-bottom:10px;
-font-size:14px;
 }
 
 button{
@@ -66,91 +52,100 @@ border-radius:8px;
 color:white;
 cursor:pointer;
 width:100%;
-margin-top:6px;
 }
 
 button:hover{
 background:#2563eb;
 }
 
-.pipeline{
-display:grid;
-grid-template-columns:repeat(6,1fr);
-gap:10px;
-margin-bottom:20px;
+.sliderLabel{
+font-size:13px;
+color:#94a3b8;
 }
 
 .stage{
-background:#1e293b;
-padding:12px;
-border-radius:8px;
-text-align:center;
-font-size:13px;
-border:1px solid #334155;
+display:inline-block;
+padding:6px 10px;
+margin-right:6px;
+border-radius:6px;
+background:#334155;
+font-size:12px;
 }
 
 .active{
 background:#3b82f6;
-border-color:#3b82f6;
 }
 
 .result{
-min-height:60px;
-margin-top:10px;
-color:#cbd5f5;
+margin-top:8px;
 font-size:14px;
+color:#cbd5f5;
 }
 
-.footer{
-text-align:center;
-color:#64748b;
-padding:15px;
-font-size:12px;
+.toggle{
+display:flex;
+align-items:center;
+gap:8px;
+font-size:13px;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<header>
-RAG Simulator
-</header>
+<header>Interactive RAG Simulator</header>
 
-<div class="sub">
-Understand Retrieval Augmented Generation step-by-step
-</div>
-
-<div class="wrapper">
+<div class="container">
 
 <div>
 
 <div class="card">
 
-<h3>Knowledge Base</h3>
+<b>Documents</b>
 
 <textarea id="docs">
-Azure DevOps helps teams manage development projects.
+Azure DevOps helps teams manage software development.
 
-RAG means Retrieval Augmented Generation.
+RAG stands for Retrieval Augmented Generation.
 
-LLMs can hallucinate without external knowledge.
+LLMs hallucinate without external knowledge.
 
-Vector databases store embeddings for similarity search.
+Vector databases store embeddings.
 </textarea>
 
-<button onclick="ingest()">Ingest Documents</button>
+<button onclick="processDocs()">Ingest Documents</button>
 
 </div>
 
 <div class="card">
 
-<h3>Ask Question</h3>
+<b>Chunk Settings</b>
 
-<input id="question" placeholder="Example: What is RAG?">
+<div class="sliderLabel">Chunk Size (words)</div>
+<input type="range" min="3" max="20" value="8" id="chunkSize">
 
-<button onclick="runRAG()">Run RAG Pipeline</button>
+<div class="sliderLabel">Overlap</div>
+<input type="range" min="0" max="10" value="2" id="overlap">
+
+</div>
+
+<div class="card">
+
+<b>Ask Question</b>
+
+<input id="question" placeholder="What is RAG?">
+
+<button onclick="runRAG()">Run RAG</button>
+
+</div>
+
+<div class="card">
+
+<div class="toggle">
+<input type="checkbox" id="showVectors" checked>
+Show Embeddings
+</div>
 
 </div>
 
@@ -158,55 +153,50 @@ Vector databases store embeddings for similarity search.
 
 <div>
 
-<div class="pipeline">
+<div class="card">
 
-<div id="s1" class="stage">Documents</div>
-<div id="s2" class="stage">Chunking</div>
-<div id="s3" class="stage">Embeddings</div>
-<div id="s4" class="stage">Vector Search</div>
-<div id="s5" class="stage">Context</div>
-<div id="s6" class="stage">LLM Answer</div>
+<div id="pipeline">
+
+<span id="s1" class="stage">Chunks</span>
+<span id="s2" class="stage">Embeddings</span>
+<span id="s3" class="stage">Search</span>
+<span id="s4" class="stage">Context</span>
+<span id="s5" class="stage">Answer</span>
+
+</div>
 
 </div>
 
 <div class="card">
 
-<h3>Document Chunks</h3>
-
+<b>Chunks</b>
 <div id="chunks" class="result"></div>
 
 </div>
 
 <div class="card">
 
-<h3>Embeddings</h3>
-
-<div id="embeddings" class="result"></div>
+<b>Embeddings</b>
+<div id="vectors" class="result"></div>
 
 </div>
 
 <div class="card">
 
-<h3>Retrieved Context</h3>
-
+<b>Retrieved Context</b>
 <div id="context" class="result"></div>
 
 </div>
 
 <div class="card">
 
-<h3>Generated Answer</h3>
-
+<b>Answer</b>
 <div id="answer" class="result"></div>
 
 </div>
 
 </div>
 
-</div>
-
-<div class="footer">
-RAG Simulator • Educational Demo
 </div>
 
 <script>
@@ -224,13 +214,23 @@ document.getElementById(id).classList.add("active")
 
 }
 
-function ingest(){
+function processDocs(){
 
 highlight("s1")
 
 let text=document.getElementById("docs").value
+let words=text.split(" ")
 
-chunks=text.split(".").map(x=>x.trim()).filter(x=>x)
+let size=parseInt(document.getElementById("chunkSize").value)
+let overlap=parseInt(document.getElementById("overlap").value)
+
+chunks=[]
+
+for(let i=0;i<words.length;i+=size-overlap){
+
+chunks.push(words.slice(i,i+size).join(" "))
+
+}
 
 document.getElementById("chunks").innerHTML=""
 
@@ -241,17 +241,24 @@ document.getElementById("chunks").innerHTML+=
 
 })
 
-setTimeout(embed,700)
+generateEmbeddings()
 
 }
 
-function embed(){
+function generateEmbeddings(){
 
-highlight("s3")
+highlight("s2")
 
 vectors=[]
 
-document.getElementById("embeddings").innerHTML=""
+if(!document.getElementById("showVectors").checked){
+
+document.getElementById("vectors").innerHTML="Hidden"
+return
+
+}
+
+document.getElementById("vectors").innerHTML=""
 
 chunks.forEach((c,i)=>{
 
@@ -259,7 +266,7 @@ let v=Math.random().toFixed(3)
 
 vectors.push(v)
 
-document.getElementById("embeddings").innerHTML+=
+document.getElementById("vectors").innerHTML+=
 "Chunk "+(i+1)+" → Vector "+v+"<br><br>"
 
 })
@@ -268,7 +275,7 @@ document.getElementById("embeddings").innerHTML+=
 
 function runRAG(){
 
-highlight("s4")
+highlight("s3")
 
 let q=document.getElementById("question").value.toLowerCase()
 
@@ -292,16 +299,16 @@ best=i
 
 let context=chunks[best]
 
-highlight("s5")
+highlight("s4")
 
 document.getElementById("context").innerHTML=context
 
 setTimeout(()=>{
 
-highlight("s6")
+highlight("s5")
 
 document.getElementById("answer").innerHTML=
-"Using retrieved context: "+context
+"Answer generated from context: "+context
 
 },700)
 
@@ -310,5 +317,4 @@ document.getElementById("answer").innerHTML=
 </script>
 
 </body>
-
 </html>
