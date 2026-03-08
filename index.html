@@ -12,12 +12,11 @@ font-family:Segoe UI,Arial;
 background:#0f172a;
 color:white;
 margin:0;
-padding:0;
 }
 
 header{
 background:#1e293b;
-padding:15px;
+padding:18px;
 text-align:center;
 font-size:24px;
 font-weight:bold;
@@ -25,15 +24,14 @@ font-weight:bold;
 
 .container{
 display:flex;
-height:90vh;
+height:92vh;
 }
 
 .left{
-width:40%;
+width:35%;
 background:#111827;
 padding:20px;
 overflow:auto;
-border-right:1px solid #334155;
 }
 
 .right{
@@ -42,31 +40,23 @@ padding:20px;
 overflow:auto;
 }
 
-textarea{
-width:100%;
-height:120px;
-padding:10px;
-border-radius:8px;
-border:none;
-margin-bottom:10px;
-}
-
-input{
+textarea,input{
 width:100%;
 padding:10px;
 border-radius:8px;
 border:none;
-margin-bottom:10px;
+margin-bottom:12px;
+font-size:14px;
 }
 
 button{
 background:#3b82f6;
 border:none;
-padding:10px 15px;
+padding:10px 14px;
 border-radius:6px;
 color:white;
 cursor:pointer;
-margin-bottom:10px;
+margin-bottom:12px;
 }
 
 button:hover{
@@ -80,13 +70,23 @@ border-radius:8px;
 margin-bottom:10px;
 }
 
-.step{
+.pipeline{
+display:flex;
+gap:10px;
 margin-bottom:20px;
 }
 
-.title{
-font-weight:bold;
-margin-bottom:6px;
+.stage{
+flex:1;
+background:#1e293b;
+padding:10px;
+border-radius:8px;
+text-align:center;
+font-size:13px;
+}
+
+.active{
+background:#3b82f6;
 }
 
 </style>
@@ -96,28 +96,30 @@ margin-bottom:6px;
 <body>
 
 <header>
-RAG Simulator
+RAG Visual Simulator
 </header>
 
 <div class="container">
 
 <div class="left">
 
-<h3>Documents</h3>
+<h3>Knowledge Base</h3>
 
-<textarea id="documents">
-Azure DevOps helps teams manage software development using boards and pipelines.
+<textarea id="docs">
+Azure DevOps helps manage software development projects.
 
-Large Language Models generate answers but may hallucinate if knowledge is missing.
+RAG stands for Retrieval Augmented Generation.
 
-Retrieval Augmented Generation improves LLM answers by retrieving external documents.
+LLMs can hallucinate if they lack external knowledge.
+
+Vector databases store embeddings for similarity search.
 </textarea>
 
-<button onclick="ingestDocs()">1. Ingest Documents</button>
+<button onclick="ingest()">1. Ingest Documents</button>
 
 <h3>Ask Question</h3>
 
-<input id="question" placeholder="Ask a question">
+<input id="question" placeholder="Example: What is RAG?">
 
 <button onclick="runRAG()">Run RAG</button>
 
@@ -125,23 +127,34 @@ Retrieval Augmented Generation improves LLM answers by retrieving external docum
 
 <div class="right">
 
-<div class="step">
-<div class="title">Document Chunks</div>
+<div class="pipeline">
+
+<div id="stage1" class="stage">Documents</div>
+<div id="stage2" class="stage">Chunking</div>
+<div id="stage3" class="stage">Embeddings</div>
+<div id="stage4" class="stage">Vector Search</div>
+<div id="stage5" class="stage">Context</div>
+<div id="stage6" class="stage">LLM Answer</div>
+
+</div>
+
+<div class="card">
+<b>Chunks</b>
 <div id="chunks"></div>
 </div>
 
-<div class="step">
-<div class="title">Embeddings</div>
+<div class="card">
+<b>Embeddings</b>
 <div id="embeddings"></div>
 </div>
 
-<div class="step">
-<div class="title">Retrieved Context</div>
+<div class="card">
+<b>Retrieved Context</b>
 <div id="context"></div>
 </div>
 
-<div class="step">
-<div class="title">LLM Answer</div>
+<div class="card">
+<b>Generated Answer</b>
 <div id="answer"></div>
 </div>
 
@@ -152,49 +165,59 @@ Retrieval Augmented Generation improves LLM answers by retrieving external docum
 <script>
 
 let chunks=[]
-let vectors=[]
+let embeddings=[]
 
-function ingestDocs(){
+function activate(stage){
 
-let text=document.getElementById("documents").value
+document.querySelectorAll(".stage").forEach(x=>{
+x.classList.remove("active")
+})
+
+document.getElementById(stage).classList.add("active")
+
+}
+
+function ingest(){
+
+activate("stage1")
+
+let text=document.getElementById("docs").value
 
 chunks=text.split(".").map(x=>x.trim()).filter(x=>x.length>0)
 
-let chunkDiv=document.getElementById("chunks")
-chunkDiv.innerHTML=""
+document.getElementById("chunks").innerHTML=""
 
 chunks.forEach((c,i)=>{
 
-let card=document.createElement("div")
-card.className="card"
-card.innerText="Chunk "+(i+1)+": "+c
+let div=document.createElement("div")
+div.innerHTML="Chunk "+(i+1)+": "+c
 
-chunkDiv.appendChild(card)
+document.getElementById("chunks").appendChild(div)
 
 })
 
-createEmbeddings()
+setTimeout(createEmbeddings,800)
 
 }
 
 function createEmbeddings(){
 
-vectors=[]
+activate("stage3")
 
-let embedDiv=document.getElementById("embeddings")
-embedDiv.innerHTML=""
+embeddings=[]
+
+document.getElementById("embeddings").innerHTML=""
 
 chunks.forEach((c,i)=>{
 
-let vector=Math.random().toFixed(3)
+let vector=(Math.random()*1).toFixed(3)
 
-vectors.push(vector)
+embeddings.push(vector)
 
-let card=document.createElement("div")
-card.className="card"
-card.innerText="Chunk "+(i+1)+" Vector: "+vector
+let div=document.createElement("div")
+div.innerHTML="Chunk "+(i+1)+" → Vector "+vector
 
-embedDiv.appendChild(card)
+document.getElementById("embeddings").appendChild(div)
 
 })
 
@@ -202,45 +225,47 @@ embedDiv.appendChild(card)
 
 function runRAG(){
 
-let question=document.getElementById("question").value.toLowerCase()
+activate("stage4")
 
-let bestIndex=0
-let bestScore=0
+let q=document.getElementById("question").value.toLowerCase()
+
+let best=0
+let score=0
 
 chunks.forEach((c,i)=>{
 
-let score=0
+let s=0
 
-question.split(" ").forEach(word=>{
+q.split(" ").forEach(word=>{
+if(c.toLowerCase().includes(word)) s++
+})
 
-if(c.toLowerCase().includes(word)){
-score++
+if(s>score){
+score=s
+best=i
 }
 
 })
 
-if(score>bestScore){
-bestScore=score
-bestIndex=i
-}
+let context=chunks[best]
 
-})
+activate("stage5")
 
-let context=chunks[bestIndex]
+document.getElementById("context").innerHTML=context
 
-document.getElementById("context").innerHTML=
-'<div class="card">'+context+'</div>'
-
-generateAnswer(context)
+setTimeout(()=>{
+generate(context)
+},700)
 
 }
 
-function generateAnswer(context){
+function generate(context){
 
-let answer="Based on retrieved context: "+context
+activate("stage6")
 
-document.getElementById("answer").innerHTML=
-'<div class="card">'+answer+'</div>'
+let answer="Using retrieved context: "+context
+
+document.getElementById("answer").innerHTML=answer
 
 }
 
