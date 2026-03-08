@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>RAG Simulator</title>
+<title>RAG Learning Simulator</title>
 
 <style>
 
@@ -16,77 +16,96 @@ margin:0;
 
 header{
 background:#1e293b;
-padding:18px;
+padding:20px;
 text-align:center;
-font-size:24px;
+font-size:26px;
 font-weight:bold;
+letter-spacing:1px;
 }
 
-.container{
-display:flex;
-height:92vh;
+.sub{
+text-align:center;
+color:#94a3b8;
+margin-bottom:20px;
 }
 
-.left{
-width:35%;
-background:#111827;
+.wrapper{
+display:grid;
+grid-template-columns:320px 1fr;
+gap:20px;
 padding:20px;
-overflow:auto;
 }
 
-.right{
-flex:1;
-padding:20px;
-overflow:auto;
+.card{
+background:#1e293b;
+border-radius:10px;
+padding:18px;
+margin-bottom:15px;
+}
+
+.card h3{
+margin-top:0;
+font-size:18px;
 }
 
 textarea,input{
 width:100%;
 padding:10px;
-border-radius:8px;
 border:none;
-margin-bottom:12px;
+border-radius:8px;
+margin-top:8px;
+margin-bottom:10px;
 font-size:14px;
 }
 
 button{
 background:#3b82f6;
 border:none;
-padding:10px 14px;
-border-radius:6px;
+padding:10px;
+border-radius:8px;
 color:white;
 cursor:pointer;
-margin-bottom:12px;
+width:100%;
+margin-top:6px;
 }
 
 button:hover{
 background:#2563eb;
 }
 
-.card{
-background:#1e293b;
-padding:12px;
-border-radius:8px;
-margin-bottom:10px;
-}
-
 .pipeline{
-display:flex;
+display:grid;
+grid-template-columns:repeat(6,1fr);
 gap:10px;
 margin-bottom:20px;
 }
 
 .stage{
-flex:1;
 background:#1e293b;
-padding:10px;
+padding:12px;
 border-radius:8px;
 text-align:center;
 font-size:13px;
+border:1px solid #334155;
 }
 
 .active{
 background:#3b82f6;
+border-color:#3b82f6;
+}
+
+.result{
+min-height:60px;
+margin-top:10px;
+color:#cbd5f5;
+font-size:14px;
+}
+
+.footer{
+text-align:center;
+color:#64748b;
+padding:15px;
+font-size:12px;
 }
 
 </style>
@@ -96,128 +115,152 @@ background:#3b82f6;
 <body>
 
 <header>
-RAG Visual Simulator
+RAG Simulator
 </header>
 
-<div class="container">
+<div class="sub">
+Understand Retrieval Augmented Generation step-by-step
+</div>
 
-<div class="left">
+<div class="wrapper">
+
+<div>
+
+<div class="card">
 
 <h3>Knowledge Base</h3>
 
 <textarea id="docs">
-Azure DevOps helps manage software development projects.
+Azure DevOps helps teams manage development projects.
 
-RAG stands for Retrieval Augmented Generation.
+RAG means Retrieval Augmented Generation.
 
-LLMs can hallucinate if they lack external knowledge.
+LLMs can hallucinate without external knowledge.
 
 Vector databases store embeddings for similarity search.
 </textarea>
 
-<button onclick="ingest()">1. Ingest Documents</button>
+<button onclick="ingest()">Ingest Documents</button>
+
+</div>
+
+<div class="card">
 
 <h3>Ask Question</h3>
 
 <input id="question" placeholder="Example: What is RAG?">
 
-<button onclick="runRAG()">Run RAG</button>
+<button onclick="runRAG()">Run RAG Pipeline</button>
 
 </div>
 
-<div class="right">
+</div>
+
+<div>
 
 <div class="pipeline">
 
-<div id="stage1" class="stage">Documents</div>
-<div id="stage2" class="stage">Chunking</div>
-<div id="stage3" class="stage">Embeddings</div>
-<div id="stage4" class="stage">Vector Search</div>
-<div id="stage5" class="stage">Context</div>
-<div id="stage6" class="stage">LLM Answer</div>
+<div id="s1" class="stage">Documents</div>
+<div id="s2" class="stage">Chunking</div>
+<div id="s3" class="stage">Embeddings</div>
+<div id="s4" class="stage">Vector Search</div>
+<div id="s5" class="stage">Context</div>
+<div id="s6" class="stage">LLM Answer</div>
 
 </div>
 
 <div class="card">
-<b>Chunks</b>
-<div id="chunks"></div>
+
+<h3>Document Chunks</h3>
+
+<div id="chunks" class="result"></div>
+
 </div>
 
 <div class="card">
-<b>Embeddings</b>
-<div id="embeddings"></div>
+
+<h3>Embeddings</h3>
+
+<div id="embeddings" class="result"></div>
+
 </div>
 
 <div class="card">
-<b>Retrieved Context</b>
-<div id="context"></div>
+
+<h3>Retrieved Context</h3>
+
+<div id="context" class="result"></div>
+
 </div>
 
 <div class="card">
-<b>Generated Answer</b>
-<div id="answer"></div>
+
+<h3>Generated Answer</h3>
+
+<div id="answer" class="result"></div>
+
+</div>
+
 </div>
 
 </div>
 
+<div class="footer">
+RAG Simulator • Educational Demo
 </div>
 
 <script>
 
 let chunks=[]
-let embeddings=[]
+let vectors=[]
 
-function activate(stage){
+function highlight(id){
 
 document.querySelectorAll(".stage").forEach(x=>{
 x.classList.remove("active")
 })
 
-document.getElementById(stage).classList.add("active")
+document.getElementById(id).classList.add("active")
 
 }
 
 function ingest(){
 
-activate("stage1")
+highlight("s1")
 
 let text=document.getElementById("docs").value
 
-chunks=text.split(".").map(x=>x.trim()).filter(x=>x.length>0)
+chunks=text.split(".").map(x=>x.trim()).filter(x=>x)
 
 document.getElementById("chunks").innerHTML=""
 
 chunks.forEach((c,i)=>{
 
-let div=document.createElement("div")
-div.innerHTML="Chunk "+(i+1)+": "+c
-
-document.getElementById("chunks").appendChild(div)
+document.getElementById("chunks").innerHTML+=
+"Chunk "+(i+1)+": "+c+"<br><br>"
 
 })
 
-setTimeout(createEmbeddings,800)
+setTimeout(embed,700)
 
 }
 
-function createEmbeddings(){
+function embed(){
 
-activate("stage3")
+highlight("s3")
 
-embeddings=[]
+vectors=[]
 
 document.getElementById("embeddings").innerHTML=""
 
 chunks.forEach((c,i)=>{
 
-let vector=(Math.random()*1).toFixed(3)
+let v=Math.random().toFixed(3)
 
-embeddings.push(vector)
+vectors.push(v)
 
-let div=document.createElement("div")
-div.innerHTML="Chunk "+(i+1)+" → Vector "+vector
-
-document.getElementById("embeddings").appendChild(div)
+document.getElementById("embeddings").innerHTML+=
+"Chunk "+(i+1)+" → Vector "+v+"<br><br>"
 
 })
 
@@ -225,7 +268,7 @@ document.getElementById("embeddings").appendChild(div)
 
 function runRAG(){
 
-activate("stage4")
+highlight("s4")
 
 let q=document.getElementById("question").value.toLowerCase()
 
@@ -236,8 +279,8 @@ chunks.forEach((c,i)=>{
 
 let s=0
 
-q.split(" ").forEach(word=>{
-if(c.toLowerCase().includes(word)) s++
+q.split(" ").forEach(w=>{
+if(c.toLowerCase().includes(w)) s++
 })
 
 if(s>score){
@@ -249,23 +292,18 @@ best=i
 
 let context=chunks[best]
 
-activate("stage5")
+highlight("s5")
 
 document.getElementById("context").innerHTML=context
 
 setTimeout(()=>{
-generate(context)
+
+highlight("s6")
+
+document.getElementById("answer").innerHTML=
+"Using retrieved context: "+context
+
 },700)
-
-}
-
-function generate(context){
-
-activate("stage6")
-
-let answer="Using retrieved context: "+context
-
-document.getElementById("answer").innerHTML=answer
 
 }
 
