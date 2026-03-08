@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .info-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-section h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .info-section p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            button {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 RAG Simulation</h1>
+        <p class="subtitle">Retrieval-Augmented Generation Demo</p>
+
+        <div class="info-section">
+            <h2>About this Project</h2>
+            <p>Welcome to the RAG Simulation project! This application demonstrates the power of Retrieval-Augmented Generation, a technique that combines information retrieval with generative AI.</p>
+        </div>
+
+        <div class="info-section">
+            <h2>Key Features</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <h3>📚 Retrieval</h3>
+                    <p>Efficiently search and retrieve relevant documents</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔍 Processing</h3>
+                    <p>Analyze and process retrieved information</p>
+                </div>
+                <div class="feature-card">
+                    <h3>✨ Generation</h3>
+                    <p>Generate accurate responses using context</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Fast</h3>
+                    <p>Quick and efficient query processing</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>How It Works</h2>
+            <p><strong>1. Query Input:</strong> User provides a question or query</p>
+            <p><strong>2. Document Retrieval:</strong> System searches for relevant documents</p>
+            <p><strong>3. Context Augmentation:</strong> Retrieved documents augment the prompt</p>
+            <p><strong>4. Response Generation:</strong> AI generates informed response using context</p>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="alert('🚀 Starting simulation...')">Start Simulation</button>
+            <button class="btn-secondary" onclick="alert('📖 Learn more about RAG')">Learn More</button>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 RAG Simulation | Created by DILMEN25</p>
+        </footer>
+    </div>
+
+    <script>
+        // Optional: Add interactive functionality
+        console.log('RAG Simulation loaded successfully');
+    </script>
+</body>
+</html>
